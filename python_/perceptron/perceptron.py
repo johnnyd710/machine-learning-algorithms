@@ -36,7 +36,7 @@ filename = sys.argv[1]
 new_data = np.asarray(sys.argv[2].split(','), dtype = float)
 print(new_data)
 D = fetch_data(filename)
-if np.size(D) != 0:
+if np.size(D) > 1:
     P = Perceptron(D)
     P.run(D, 1)
     y = P.predict(new_data)
