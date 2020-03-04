@@ -28,24 +28,24 @@ class XLM:
 
     def predict(self, X):
         X = np.column_stack([X, np.ones([X.shape[0], 1])])
-        G = np.tanh(X.dot(self.random_weights))
+        G = self.activation_function(X.dot(self.random_weights))
         return G.dot(self.w)
 
     def __str__(self):
         return str(self.w)
 
     def activation_function(self, x):
+        return self.softmax(x)
+
+    def tanh(self, x):
         return np.tanh(x)
 
+    def relu(self, x):
+        return np.maximum(0, x)
 
-xlm = XLM(10)
+    def linear(self, x):
+        return x
 
-train_data = np.array([[0,0], [1,0], [0,1], [1,1]])
-
-xlm.fit(train_data, [1, 0, 0, 1])
-
-test_data = np.array([[0,0], [1,0], [0,1], [1,1]])
-
-predictions = xlm.predict(test_data)
-
-print("predictions: ", predictions)
+    def softmax(self, x):
+        """Compute softmax values for each sets of scores in x."""
+        return np.exp(x) / np.sum(np.exp(x), axis=0)
