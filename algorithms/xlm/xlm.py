@@ -15,19 +15,22 @@ class XLM:
     def fit(self, X, labels):
         """
         X is a 1-d array of inputs,
-        labels are a 1-d array of outputs
+        labels are a n-d array of outputs
         """
         # add a column of all ones to represent the biases
-        X = np.column_stack([X, np.ones([X.shape[0]])])
+        # X = np.column_stack([X, np.ones([X.shape[0]])])
         # weights and baises are all random numbers
         self.random_weights = np.random.randn(X.shape[1], self.no_hidden_units)
         # G = activation_function(weights * inputs + biases)
         G = self.activation_function(X.dot(self.random_weights))
         # the final layer is not random 
-        self.w = np.linalg.pinv(G).dot(labels)
+        # self.w = np.linalg.pinv(G).dot(labels)
+        Gt = np.transpose(G)
+        # beta = (X^T*X)^-1 (X^T*y)
+        self.w = np.dot(np.linalg.pinv(np.dot(Gt, G)), np.dot(Gt, labels))
 
     def predict(self, X):
-        X = np.column_stack([X, np.ones([X.shape[0], 1])])
+        # X = np.column_stack([X, np.ones([X.shape[0], 1])])
         G = self.activation_function(X.dot(self.random_weights))
         return G.dot(self.w)
 
@@ -35,13 +38,16 @@ class XLM:
         return str(self.w)
 
     def activation_function(self, x):
-        return self.softmax(x)
+        """
+        choose an activation function :)
+        """
+        return self.relu(x)
 
     def tanh(self, x):
         return np.tanh(x)
 
     def relu(self, x):
-        return np.maximum(0, x)
+        return np.maximum(x, 0, x)
 
     def linear(self, x):
         return x
