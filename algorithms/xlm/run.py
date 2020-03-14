@@ -14,15 +14,15 @@ from process import process
 
 
 @click.command()
-@click.option('--numhidden', '-n', help='number of hidden units or neurons')
-@click.option('--scale', '-s', help='scale factor', type=int)
-@click.option('--fillmissing', '-f', help='fill missing values')
-def run(numhidden, scale, fillmissing):
+@click.option('--pathtodataset', '-d', help='dataset path')
+@click.option('--numhiddenneurons', '-n', help='number of hidden units or neurons')
+@click.option('--scalefactor', '-s', help='scale factor', type=int)
+@click.option('--fillmissingvalues', '-f', help='fill missing values yes (1) or no (0)')
+def run(pathtodataset, numhiddenneurons, scalefactor, fillmissingvalues):
+    data = np.genfromtxt(sys.stdin if not sys.stdin.isatty() else pathtodataset, dtype=np.float, skip_header=1, delimiter=',', missing_values="")
+    train_x, train_y, test_x, test_y = process(data, scalefactor, fillmissingvalues)
 
-    data = np.genfromtxt(sys.stdin, dtype=np.float, skip_header=1, delimiter=',', missing_values="")
-    train_x, train_y, test_x, test_y = process(data, scale, fillmissing)
-
-    xlm = XLM(int(numhidden))
+    xlm = XLM(int(numhiddenneurons))
 
     xlm.fit(train_x, train_y)
     
