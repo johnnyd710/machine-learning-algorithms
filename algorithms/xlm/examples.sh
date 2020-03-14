@@ -1,0 +1,2 @@
+head -1000 ../../datasets/mnist_train.csv | venv/bin/python run.py --numhidden 1000 --scale 255 --fillmissing 0 | venv/bin/python evaluate.py
+head -1000 ../../datasets/quartic_cleaned.csv | venv/bin/python run.py --numhidden 1000 --fillmissing 1 | venv/bin/python evaluate.py

@@ -15,10 +15,12 @@ from process import process
 
 @click.command()
 @click.option('--numhidden', '-n', help='number of hidden units or neurons')
-def run(numhidden):
+@click.option('--scale', '-s', help='scale factor', type=int)
+@click.option('--fillmissing', '-f', help='fill missing values')
+def run(numhidden, scale, fillmissing):
 
-    data = np.loadtxt(sys.stdin, dtype=np.int, skiprows=1, delimiter=',')
-    train_x, train_y, test_x, test_y = process(data)
+    data = np.genfromtxt(sys.stdin, dtype=np.float, skip_header=1, delimiter=',', missing_values="")
+    train_x, train_y, test_x, test_y = process(data, scale, fillmissing)
 
     xlm = XLM(int(numhidden))
 
