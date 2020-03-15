@@ -3,6 +3,7 @@
 *.csv
 
 datasets/
+deps/
 
 __pycache__/
 *.py[cod]

@@ -1,47 +1,75 @@
+/*
+@author: John DiMatteo
+creation date: 03-14-2020
+desc:
+extreme learning machine using Pytorch Tensors
+
+INPUT
+    data        - path to csv, first row header, first column has labels
+    numhidden   - number of hidden neurons
+
+OUTPUT
+    scores      - Tensor of predictions
+*/
+
 #include <torch/torch.h>
 #include <iostream>
 
-#define NO_HIDDEN_LAYERS 100
+struct XLM {
 
-// build a neural network similar to how you would do it with Pytorch 
+    torch::Tensor in_weights;
+    torch::Tensor out_weights;
 
-struct Model : torch::nn::Module {
-
-    // Constructor
-    Model() {
-        // construct and register your layers
-        in = register_module("in",torch::nn::Linear(8,NO_HIDDEN_LAYERS));
-        h = register_module("h",torch::nn::Linear(NO_HIDDEN_LAYERS,NO_HIDDEN_LAYERS));
-        out = register_module("out",torch::nn::Linear(NO_HIDDEN_LAYERS,1));
+    XLM(int input_size, int no_hidden_units) {
+        in_weights = torch::rand({input_size,no_hidden_units});
     }
 
-    // the forward operation (how data will flow from layer to layer)
-    torch::Tensor forward(torch::Tensor X){
-        // let's pass relu 
-        X = torch::relu(in->forward(X));
-        X = torch::relu(h->forward(X));
-        X = torch::sigmoid(out->forward(X));
-        
-        // return the output
-        return X;
+    void train(torch::Tensor X, torch::Tensor y) {
+        std::cout << in_weights << std::endl;
+        // dot product between X and the random first layer
+        X = torch::matmul(X, in_weights);
+        // activation function
+        X = torch::relu(X);
+        // transpose
+        torch::Tensor X_T = torch::t(X);
+        out_weights = torch::matmul(
+            torch::pinverse(
+                torch::matmul(X_T, X)
+            ),
+            torch::matmul(
+                X_T,
+                y
+            )
+        );
+    };
+
+    torch::Tensor predict(torch::Tensor X) {
+        return torch::matmul(
+            torch::relu(torch::matmul(X, in_weights)),
+            out_weights
+        );
     }
-
-    torch::nn::Linear in{nullptr},h{nullptr},out{nullptr};
-
-
-
 };
-
 
 int main(){
 
-    Model model;
-    
-    auto in = torch::rand({8,});
+    int row_size = 8;
+    int col_size = 8;
+    // int output_size = 1;
+    int no_hidden_units = 4;
 
-    auto out = model.forward(in);
+    auto X = torch::rand({row_size, col_size});
+    auto y = torch::randint(0, 2, row_size);
 
-    std::cout << in << std::endl;
-    std::cout << out << std::endl;
+    XLM model(col_size, no_hidden_units);
+    model.train(X, y);
+
+    torch::Tensor pred = model.predict(X);
+
+    pred = torch::round(pred);
+
+    std::cout << "Accuracy " << (1 - (torch::sum(pred - y) / row_size)) * 100 << "%" << std::endl;
+
+    return 0;
 
 }
